@@ -193,8 +193,8 @@ class _TaggableManager(models.Manager):
         qs = self.through.objects.values(*lookup_kwargs.keys())
         qs = qs.annotate(n=models.Count('pk'))
         qs = qs.exclude(**lookup_kwargs)
-        subq = self.all()
-        qs = qs.filter(tag__in=list(subq))
+        id_list = self.all().values_list('id', flat=True)
+        qs = qs.filter(tag__id__in=id_list)
         qs = qs.order_by('-n')
         
         if num is not None:
