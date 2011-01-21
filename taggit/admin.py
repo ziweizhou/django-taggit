@@ -10,6 +10,6 @@ class TagAdmin(admin.ModelAdmin):
     inlines = [
         TaggedItemInline
     ]
-
+    ordering = ['name']
 
 admin.site.register(Tag, TagAdmin)
