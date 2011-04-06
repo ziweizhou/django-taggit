@@ -187,7 +187,7 @@ class _TaggableManager(models.Manager):
         ).order_by('-num_times')
 
     @require_instance_manager
-    def similar_objects(self, num=None):
+    def similar_objects(self, num=None, **filters):
         lookup_kwargs = self._lookup_kwargs()
         lookup_keys = sorted(lookup_kwargs)
         qs = self.through.objects.values(*lookup_kwargs.keys())
@@ -197,6 +197,9 @@ class _TaggableManager(models.Manager):
         qs = qs.filter(tag__in=list(subq))
         qs = qs.order_by('-n')
         
+        if filters is not None:
+	        qs = qs.filter(**filters)
+	
         if num is not None:
 	        qs = qs[:num]
         
