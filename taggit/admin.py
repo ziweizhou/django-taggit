@@ -12,5 +12,6 @@ class TagAdmin(admin.ModelAdmin):
         TaggedItemInline
     ]
     ordering = ['name']
+    search_fields = ['name']
 
 admin.site.register(Tag, TagAdmin)
