@@ -6,6 +6,8 @@ from django.db.models.related import RelatedObject
 from django.db.models.fields.related import add_lazy_relation
 from django.utils.translation import ugettext_lazy as _
 
+from django.template.defaultfilters import slugify
+
 from taggit.forms import TagField
 from taggit.models import TaggedItem, GenericTaggedItemBase
 from taggit.utils import require_instance_manager
@@ -159,10 +161,14 @@ class _TaggableManager(models.Manager):
         existing = self.through.tag_model().objects.filter(
             name__in=str_tags
         )
+
         tag_objs.update(existing)
 
-        for new_tag in str_tags - set(t.name for t in existing):
-            tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+        existing_slugs = set([t.slug for t in tag_objs])
+		
+        for new_tag in str_tags:
+            if slugify(new_tag) not in existing_slugs:
+            	tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
 
         for tag in tag_objs:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
