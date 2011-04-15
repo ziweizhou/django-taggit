@@ -160,9 +160,13 @@ class _TaggableManager(models.Manager):
             name__in=str_tags
         )
         tag_objs.update(existing)
-
-        for new_tag in str_tags - set(t.name for t in existing):
-            tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+        
+        existing_names = set(t.name for t in existing)
+        existing_names_lower = set(t.name.lower() for t in existing)
+        
+        for new_name in str_tags - existing_names:
+            if len(set([new_name.lower()]) - existing_names_lower) > 0:
+                tag_objs.add(self.through.tag_model().objects.create(name=new_name))
 
         for tag in tag_objs:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
