@@ -52,6 +52,12 @@ class TagBase(models.Model):
 
 
 class Tag(TagBase):
+    namespace =  models.CharField(_('namespace'), max_length=100, blank=True)
+
+    def save(self, *args, **kwargs):
+    self.namespace = self.name.partition(":")[0] if self.name.partition(":")[1] == ":" else u''
+    return super(Tag, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
