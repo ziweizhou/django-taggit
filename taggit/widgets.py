@@ -1,6 +1,7 @@
 from django import forms
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
 
 from utils import edit_string_for_tags
@@ -13,7 +14,7 @@ class TagAutocomplete(forms.TextInput):
         if value is not None and not isinstance(value, basestring):
             value = edit_string_for_tags([o.tag for o in value.select_related("tag")])
         html = super(TagAutocomplete, self).render(name+"_dummy", u'', attrs)
-        js = u'<script type="text/javascript">jQuery = django.jQuery; jQuery().ready(function() { jQuery("#%s").autoSuggest("%s", {startText: "Enter Tag Here", preFill: "%s"}); });</script>' % (attrs['id'], list_view, value if value else u'')
+        js = u'<script type="text/javascript">jQuery = django.jQuery; jQuery().ready(function() { jQuery("#%s").autoSuggest("%s", {startText: "Enter Tag Here", preFill: "%s"}); });</script>' % (attrs['id'], list_view, escapejs(value) if value else u'')
         return mark_safe("\n".join([html, js]))
     
     class Media:
