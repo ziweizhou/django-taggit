@@ -2,7 +2,7 @@ import os
 from django import forms
 from django.utils.translation import ugettext as _
 
-from taggit.utils import parse_tags, edit_string_for_tags
+from taggit.utils import parse_tags, edit_string_for_tags, clean_tag_string
 
 class TagWidget(forms.TextInput):
 	
@@ -45,11 +45,28 @@ class TagWidget(forms.TextInput):
 		return super(TagWidget, self).render(name, value, attrs)
 
 	def _has_changed(self, initial, data):
-		try:
-			if len(initial) == 0 and len(data) == 0:
-				return False
-		except TypeError, ValueError:
-			pass
+		"""
+		Whether the input value has changed. Used for recording in
+		django_admin_log.
+		
+		Because initial is passed as a queryset, and data is a string,
+		we need to turn the former into a string and run the latter
+		through a function which cleans it up and sorts the tags in it.
+		"""
+		if initial is None:
+			initial = ""
+		elif hasattr(initial, 'select_related'):
+			initial_vals = [o.tag for o in initial.select_related("tag")]
+			initial = edit_string_for_tags(initial_vals)
+		else:
+			try:
+				if len(initial) == 0:
+					initial = ""
+				else:
+					initial = edit_string_for_tags(initial)
+			except TypeError, ValueError:
+				initial = ""
+		data = clean_tag_string(data)
 		return super(TagWidget, self)._has_changed(initial, data)
 
 class TagField(forms.CharField):
