@@ -14,10 +14,13 @@ class TaggedItemInline(admin.StackedInline):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ["name", tagged_items_count]
+    list_display = ["name", tagged_items_count,]
+    list_filter = ["namespace",]
     inlines = [
         TaggedItemInline
     ]
+    search_fields = ["name",]
+    list_per_page = 50
 
 
 admin.site.register(Tag, TagAdmin)
