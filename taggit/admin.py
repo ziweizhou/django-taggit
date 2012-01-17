@@ -20,6 +20,7 @@ class TagAdmin(admin.ModelAdmin):
         TaggedItemInline
     ]
     search_fields = ["name",]
+    prepopulated_fields = {'slug': ('name',)}
     list_per_page = 50
 
 
