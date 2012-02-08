@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from utils import edit_string_for_tags
 
