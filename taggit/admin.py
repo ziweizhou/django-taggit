@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _, ugettext
+
 
 from taggit.models import Tag, TaggedItem
 
@@ -6,7 +8,7 @@ from taggit.models import Tag, TaggedItem
 def tagged_items_count(obj):
     tagged_items_count = TaggedItem.objects.filter(tag=obj).count()
     return tagged_items_count
-tagged_items_count.short_description = 'Tagged Items Count'
+tagged_items_count.short_description = _('Tagged Items Count')
 
 
 class TaggedItemInline(admin.StackedInline):
