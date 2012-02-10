@@ -13,7 +13,6 @@ django-taggit
 
         tags = TaggableManager()
 
-
 Then you can use the API like so::
 
     >>> apple = Food.objects.create(name="apple")
