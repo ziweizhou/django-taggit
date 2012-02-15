@@ -11,6 +11,9 @@ class TagAutocomplete(forms.TextInput):
     input_type = 'text'
     
     def render(self, name, value, attrs=None):
+        if attrs is not None:
+            attrs = dict(self.attrs.items() + attrs.items())
+    
         list_view = reverse('taggit-list')
         if value is not None and not isinstance(value, basestring):
             value = edit_string_for_tags(
@@ -21,13 +24,16 @@ class TagAutocomplete(forms.TextInput):
             u'',
             attrs
         )
+        allow_add = "false"
+        if 'allow_add' in attrs and attrs['allow_add']:
+            allow_add = "true"
         js_config = u"{startText: \"%s\", \
             preFill: \"%s\", \
             allowAdd: %s, \
             allowAddMessage: \"%s\"}" % (
                 escapejs(_("Enter Tag Here")),
                 escapejs(value) if value else u'',
-                "true",
+                allow_add,
                 escapejs(_("Please choose an existing tag")),
             )
         js = u"<script type=\"text/javascript\">jQuery = django.jQuery; \
