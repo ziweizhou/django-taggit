@@ -21,13 +21,21 @@ class TagAutocomplete(forms.TextInput):
             u'',
             attrs
         )
+        js_config = u"{startText: \"%s\", \
+            preFill: \"%s\", \
+            allowAdd: %s, \
+            allowAddMessage: \"%s\"}" % (
+                escapejs(_("Enter Tag Here")),
+                escapejs(value) if value else u'',
+                "true",
+                escapejs(_("Please choose an existing tag")),
+            )
         js = u"<script type=\"text/javascript\">jQuery = django.jQuery; \
             jQuery().ready(function() { jQuery(\"#%s\").autoSuggest(\"%s\", \
-            {startText: \"%s\", preFill: \"%s\"}); });</script>" % (
+            %s); });</script>" % (
                 attrs['id'],
                 list_view,
-                _("Enter Tag Here"),
-                escapejs(value) if value else u''
+                js_config
             )
         return mark_safe("\n".join([html, js]))
     
@@ -40,5 +48,5 @@ class TagAutocomplete(forms.TextInput):
             'all': ('%s/css/autoSuggest.css' % js_base_url,)
         }
         js = (
-            '%s/js/jquery.autoSuggest.minified.js' % js_base_url,
+            '%s/js/jquery.autoSuggest.js' % js_base_url,
         )

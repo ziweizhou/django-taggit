@@ -1,6 +1,8 @@
 (function ($) {
     $.fn.autoSuggest = function (data, options) {
         var defaults = {
+            allowAdd: false,
+            allowAddMessage: "Please choose an existing tag",
             asHtmlID: false,
             startText: "Enter Name Here",
             emptyText: "No Results Found",
@@ -175,7 +177,14 @@
                     case 13:
                         tab_press = true;
                         var i_input = input.val().replace(/(,)/g, "");
-                        if (i_input != "" && values_input.val().search("," + i_input + ",") < 0 && i_input.length >= opts.minChars && $("li.active:first", results_holder).length == 0 && confirm("The Tag '" + i_input + "' does not exist.\nDo you want to create it?")) /*added confirm() + case 13*/
+                        var adding_tag = (i_input != "" &&
+                            values_input.val().search("," + i_input + ",") < 0 &&
+                            i_input.length >= opts.minChars &&
+                            $("li.active:first", results_holder).length == 0)
+                        if (adding_tag &&
+                            opts.allowAdd &&
+                            confirm("The Tag '" + i_input + "' does not exist.\nDo you want to create it?"))
+                        /*added confirm() + case 13*/
                         {
                             e.preventDefault();
                             var n_data = {};
@@ -184,6 +193,8 @@
                             var lis = $("li", selections_holder).length;
                             add_selected_item(n_data, "00" + (lis + 1));
                             input.val("")
+                        } else if (adding_tag && !opts.allowAdd) {
+                            alert(opts.allowAddMessage);
                         } else {
                             input.val("");
                         }
