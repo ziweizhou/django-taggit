@@ -66,6 +66,7 @@ class Tag(TagBase):
     class Meta:
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
+        ordering = ['namespace', 'name']
 
 
 
