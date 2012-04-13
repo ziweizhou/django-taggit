@@ -157,6 +157,7 @@ class _TaggableManager(models.Manager):
 
     @require_instance_manager
     def add(self, *tags):
+        tags = [ force_unicode(t) if not isinstance(t, self.through.tag_model()) else t for t in tags ]
         str_tags = set([
             t
             for t in tags
