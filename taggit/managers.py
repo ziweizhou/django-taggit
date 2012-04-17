@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from taggit.forms import TagField
 from taggit.models import TaggedItem, GenericTaggedItemBase
 from taggit.utils import require_instance_manager
-
+from django.utils.encoding import force_unicode
 
 try:
     all
