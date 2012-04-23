@@ -6,6 +6,7 @@ from django.utils import simplejson
 from django.utils.datastructures import MultiValueDictKeyError
 
 from taggit.models import TaggedItem, Tag
+from taggit.utils import edit_string_for_tags
 
 def tagged_object_list(request, slug, queryset, **kwargs):
     if callable(queryset):
@@ -21,8 +22,8 @@ def tagged_object_list(request, slug, queryset, **kwargs):
 
 def list_tags(request):
     try:
-        tags = Tag.objects.filter(name__icontains=request.GET['q']).values_list('name', flat=True)
-        data = [{'value': t, 'name': t} for t in tags]
+        tags = Tag.objects.filter(name__icontains=request.GET['q'])
+        data = [{'value': edit_string_for_tags([t]), 'name': t.name} for t in tags]
     except MultiValueDictKeyError:
-        data = []
+        data = ""
     return HttpResponse(simplejson.dumps(data), mimetype='application/json')

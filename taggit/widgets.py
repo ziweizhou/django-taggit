@@ -1,6 +1,7 @@
 from django import forms
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.utils import simplejson
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -13,11 +14,10 @@ class TagAutocomplete(forms.TextInput):
     def render(self, name, value, attrs=None):
         if attrs is not None:
             attrs = dict(self.attrs.items() + attrs.items())
-    
         list_view = reverse('taggit-list')
         if value is not None and not isinstance(value, basestring):
-            value = edit_string_for_tags(
-              [o.tag for o in value.select_related("tag")]
+            value = simplejson.dumps(
+              [{'value': u'%s' % edit_string_for_tags([o.tag])} for o in value.select_related("tag")]
             )
         html = super(TagAutocomplete, self).render(
             name+"_dummy",
@@ -28,11 +28,11 @@ class TagAutocomplete(forms.TextInput):
         if 'allow_add' in attrs and attrs['allow_add']:
             allow_add = "true"
         js_config = u"{startText: \"%s\", \
-            preFill: \"%s\", \
+            preFill: %s, \
             allowAdd: %s, \
             allowAddMessage: \"%s\"}" % (
                 escapejs(_("Enter Tag Here")),
-                escapejs(value) if value else u'',
+                value,
                 allow_add,
                 escapejs(_("Please choose an existing tag")),
             )

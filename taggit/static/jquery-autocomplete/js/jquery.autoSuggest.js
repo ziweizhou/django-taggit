@@ -1,7 +1,7 @@
 (function ($) {
     $.fn.autoSuggest = function (data, options) {
         var defaults = {
-            allowAdd: false,
+            allowAdd: true,
             allowAddMessage: "Please choose an existing tag",
             asHtmlID: false,
             startText: "Enter Name Here",
@@ -148,8 +148,9 @@
                         break;
                     case 8:
                         if (input.val() == "") {
-                            var last = values_input.val().split(",");
-                            last = last[last.length - 2];
+                            var $last = $("li.as-selection-item:last").clone();
+                            $last.find("a").remove();
+                            var last = $last.text();
                             selections_holder.children().not(org_li.prev()).removeClass("selected");
                             if (org_li.prev().hasClass("selected")) {
                                 values_input.val(values_input.val().replace("," + last + ",", ","));
