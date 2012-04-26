@@ -19,6 +19,8 @@ class TagAutocomplete(forms.TextInput):
             value = simplejson.dumps(
               [{'value': u'%s' % edit_string_for_tags([o.tag])} for o in value.select_related("tag")]
             )
+        else:
+            value = []
         html = super(TagAutocomplete, self).render(
             name+"_dummy",
             u'',
