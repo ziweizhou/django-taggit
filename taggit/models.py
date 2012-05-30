@@ -52,6 +52,7 @@ class TagBase(models.Model):
         return slug
 
 
+
 class Tag(TagBase):
     class Meta:
         verbose_name = _("Tag")
