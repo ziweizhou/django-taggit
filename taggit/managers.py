@@ -6,12 +6,13 @@ from django.db.models.fields.related import ManyToManyRel, RelatedField
 from django.db.models.related import RelatedObject
 from django.db.models.fields.related import add_lazy_relation
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_unicode
 
 from taggit.forms import TagField
 from taggit.models import TaggedItem, GenericTaggedItemBase
 from taggit.utils import require_instance_manager
+from taggit.widgets import TagAutocomplete
 
-from widgets import TagAutocomplete
 
 try:
     all
@@ -170,6 +171,7 @@ class _TaggableManager(models.Manager):
                 lower_tags.append(t)
             tags = lower_tags
 
+        tags = [force_unicode(t) if not isinstance(t, self.through.tag_model()) else t for t in tags]
         str_tags = set([
             t
             for t in tags
