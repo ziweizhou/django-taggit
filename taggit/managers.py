@@ -97,7 +97,7 @@ class TaggableManager(RelatedField):
         defaults = {
             "label": self.verbose_name,
             "help_text": self.help_text,
-            "required": not self.blank
+            "required": not self.blank,
             "widget": TagAutocomplete,
         }
         defaults.update(kwargs)
