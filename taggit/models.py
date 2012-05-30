@@ -1,3 +1,4 @@
+import reversion
 import django
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
@@ -54,9 +55,20 @@ class TagBase(models.Model):
 
 
 class Tag(TagBase):
+    namespace =  models.CharField(_('namespace'), max_length=100, blank=True, null=True)
+
+    def __unicode__(self):
+        name = self.name.partition(":")[2] if self.name.partition(":")[1] == ":" else self.name
+        return name
+
+    def save(self, *args, **kwargs):
+        self.namespace = self.name.partition(":")[0] if self.name.partition(":")[1] == ":" else u''
+        return super(Tag, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
+        ordering = ['namespace', 'name']
 
 
 
@@ -167,3 +179,5 @@ class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
     class Meta:
         verbose_name = _("Tagged Item")
         verbose_name_plural = _("Tagged Items")
+
+reversion.register(TaggedItem)

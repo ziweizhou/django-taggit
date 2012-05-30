@@ -11,6 +11,7 @@ from taggit.forms import TagField
 from taggit.models import TaggedItem, GenericTaggedItemBase
 from taggit.utils import require_instance_manager
 
+from widgets import TagAutocomplete
 
 try:
     all
@@ -93,11 +94,13 @@ class TaggableManager(RelatedField):
 
     def formfield(self, form_class=TagField, **kwargs):
         defaults = {
-            "label": capfirst(self.verbose_name),
-            "help_text": self.help_text,
-            "required": not self.blank
+            "label": _("Tags"),
+            "help_text": _("A comma-separated list of tags."),
+            "required": not self.blank,
+            "widget": TagAutocomplete
         }
         defaults.update(kwargs)
+        
         return form_class(**defaults)
 
     def value_from_object(self, instance):

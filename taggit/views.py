@@ -1,9 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list
+from django.http import HttpResponse
+from django.utils import simplejson
+from django.utils.datastructures import MultiValueDictKeyError
 
 from taggit.models import TaggedItem, Tag
-
+from taggit.utils import edit_string_for_tags
 
 def tagged_object_list(request, slug, queryset, **kwargs):
     if callable(queryset):
@@ -16,3 +19,11 @@ def tagged_object_list(request, slug, queryset, **kwargs):
         kwargs["extra_context"] = {}
     kwargs["extra_context"]["tag"] = tag
     return object_list(request, qs, **kwargs)
+
+def list_tags(request):
+    try:
+        tags = Tag.objects.filter(name__icontains=request.GET['q'])
+        data = [{'value': edit_string_for_tags([t]), 'name': t.name} for t in tags]
+    except MultiValueDictKeyError:
+        data = ""
+    return HttpResponse(simplejson.dumps(data), mimetype='application/json')

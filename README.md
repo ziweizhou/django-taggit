@@ -13,6 +13,7 @@ django-taggit
 
         tags = TaggableManager()
 
+
 Then you can use the API like so::
 
     >>> apple = Food.objects.create(name="apple")
@@ -43,3 +44,6 @@ English articles to, from, the, of, etc.) add to settings.py:
 For more info checkout out the documentation.  And for questions about usage or
 development you can contact the
 `mailinglist <http://groups.google.com/group/django-taggit>`_.
+
+Merger's notes:
+* Combined alex/django-taggit & fcurella/django-taggit-autocomplete by AGoodId (https://github.com/AGoodId/django-taggit).
