@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.contenttypes.generic import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -8,6 +7,7 @@ from django.db.models.fields.related import add_lazy_relation
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_unicode
 
+from taggit import settings
 from taggit.forms import TagField
 from taggit.models import TaggedItem, GenericTaggedItemBase
 from taggit.utils import require_instance_manager
