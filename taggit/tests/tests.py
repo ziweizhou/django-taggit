@@ -399,7 +399,7 @@ class TaggableFormTestCase(BaseTaggingTestCase):
     def test_formfield(self):
         tm = TaggableManager(verbose_name='categories', help_text='Add some categories', blank=True)
         ff = tm.formfield()
-        self.assertEqual(ff.label, 'Categories')
+        self.assertEqual(ff.label, 'categories')
         self.assertEqual(ff.help_text, u'Add some categories')
         self.assertEqual(ff.required, False)
 

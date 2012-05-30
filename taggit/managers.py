@@ -2,9 +2,9 @@ from django.conf import settings
 from django.contrib.contenttypes.generic import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.fields.related import ManyToManyRel, RelatedField, add_lazy_relation
+from django.db.models.fields.related import ManyToManyRel, RelatedField
 from django.db.models.related import RelatedObject
-from django.utils.text import capfirst
+from django.db.models.fields.related import add_lazy_relation
 from django.utils.translation import ugettext_lazy as _
 
 from taggit.forms import TagField
@@ -94,10 +94,10 @@ class TaggableManager(RelatedField):
 
     def formfield(self, form_class=TagField, **kwargs):
         defaults = {
-            "label": _("Tags"),
-            "help_text": _("A comma-separated list of tags."),
-            "required": not self.blank,
-            "widget": TagAutocomplete
+            "label": self.verbose_name,
+            "help_text": self.help_text,
+            "required": not self.blank
+            "widget": TagAutocomplete,
         }
         defaults.update(kwargs)
         
@@ -183,9 +183,13 @@ class _TaggableManager(models.Manager):
             name__in=str_tags
         )
         tag_objs.update(existing)
-
-        for new_tag in str_tags - set(t.name for t in existing):
-            tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+        
+        existing_names = set(t.name for t in existing)
+        existing_names_lower = set(t.name.lower() for t in existing)
+        
+        for new_name in str_tags - existing_names:
+            if len(set([new_name.lower()]) - existing_names_lower) > 0:
+                tag_objs.add(self.through.tag_model().objects.create(name=new_name))
 
         for tag in tag_objs:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
@@ -210,15 +214,22 @@ class _TaggableManager(models.Manager):
         ).order_by('-num_times')
 
     @require_instance_manager
-    def similar_objects(self):
+    def similar_objects(self, num=None, **filters):
         lookup_kwargs = self._lookup_kwargs()
         lookup_keys = sorted(lookup_kwargs)
         qs = self.through.objects.values(*lookup_kwargs.keys())
         qs = qs.annotate(n=models.Count('pk'))
         qs = qs.exclude(**lookup_kwargs)
-        qs = qs.filter(tag__in=self.all())
+        subq = self.all()
+        qs = qs.filter(tag__in=list(subq))
         qs = qs.order_by('-n')
-
+        
+        if filters is not None:
+	        qs = qs.filter(**filters)
+	
+        if num is not None:
+	        qs = qs[:num]
+        
         # TODO: This all feels like a bit of a hack.
         items = {}
         if len(lookup_keys) == 1:

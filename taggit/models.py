@@ -6,6 +6,7 @@ from django.db import models, IntegrityError, transaction
 from django.db.models.query import QuerySet
 from django.template.defaultfilters import slugify as default_slugify
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.core.urlresolvers import reverse
 
 
 class TagBase(models.Model):
@@ -69,6 +70,9 @@ class Tag(TagBase):
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
         ordering = ['namespace', 'name']
+
+    def get_absolute_url(self):
+        return reverse('taggit_tag', kwargs={'tag_slug':self.slug})
 
 
 

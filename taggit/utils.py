@@ -118,10 +118,10 @@ def split_strip(string, delimiter=u','):
 
 def edit_string_for_tags(tags):
     """
-    Given list of ``Tag`` instances, creates a string representation of
-    the list suitable for editing by the user, such that submitting the
-    given string representation back without changing it will give the
-    same list of tags.
+    Given list of ``Tag`` instances or tag strings, creates a string
+    representation of the list suitable for editing by the user, such
+    that submitting the given string representation back without
+    changing it will give the same list of tags.
 
     Tag names which contain commas will be double quoted.
 
@@ -134,14 +134,22 @@ def edit_string_for_tags(tags):
     """
     names = []
     for tag in tags:
-        name = tag.name
+        if hasattr(tag, 'name'):
+            name = tag.name
+        elif isinstance(tag, (str, unicode,)):
+            name = tag
+        else:
+            continue
         if u',' in name or u' ' in name:
             names.append('"%s"' % name)
         else:
             names.append(name)
     return u', '.join(sorted(names))
 
-
+def clean_tag_string(tag_string):
+    tags = parse_tags(tag_string)
+    return edit_string_for_tags(tags)
+	
 def require_instance_manager(func):
     @wraps(func)
     def inner(self, *args, **kwargs):

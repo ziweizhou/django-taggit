@@ -13,17 +13,19 @@ tagged_items_count.short_description = _('Tagged Items Count')
 
 class TaggedItemInline(admin.StackedInline):
     model = TaggedItem
+    extra = 0
 
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', tagged_items_count)
-    search_fields = ('name', 'slug')
     list_filter = ('namespace',)
+    ordering = ('name',)
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    list_per_page = 50
     inlines = [
         TaggedItemInline
     ]
-    prepopulated_fields = {'slug': ('name',)}
-    list_per_page = 50
 
 
 admin.site.register(Tag, TagAdmin)
