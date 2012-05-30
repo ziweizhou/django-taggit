@@ -60,10 +60,10 @@ Further Infos
 -------------
 
 For more info checkout out the
-`documentation <http://readthedocs.org/docs/django-taggit/en/latest/>`_.
+[documentation](http://readthedocs.org/docs/django-taggit/en/latest/).
 
 And for questions about usage or development you can contact
-the `mailinglist <http://groups.google.com/group/django-taggit>`_.
+the [mailinglist](http://groups.google.com/group/django-taggit).
 
 Merger's notes
 --------------
