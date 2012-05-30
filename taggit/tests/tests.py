@@ -41,21 +41,23 @@ class BaseTaggingTest(object):
     def _get_form_str(self, form_str):
         if django.VERSION >= (1, 3):
             form_str %= {
-                "help_start": '<span class="helptext">',
-                "help_stop": "</span>"
-            }
-        else:
-            form_str %= {
-                "help_start": "",
-                "help_stop": ""
-            }
+                'help_start': '<span class="helptext">',
+                'help_stop': '</span>'
+            }                
+        else:                
+            form_str %= {    
+                'help_start': '',
+                'help_stop': ''
+            }                
         return form_str
 
     def assert_form_renders(self, form, html):
         self.assertEqual(str(form), self._get_form_str(html))
 
+
 class BaseTaggingTestCase(TestCase, BaseTaggingTest):
     pass
+
 
 class BaseTaggingTransactionTestCase(TransactionTestCase, BaseTaggingTest):
     pass
@@ -66,38 +68,42 @@ class TagModelTestCase(BaseTaggingTransactionTestCase):
     tag_model = Tag
 
     def test_unique_slug(self):
-        apple = self.food_model.objects.create(name="apple")
-        apple.tags.add("Red", "red")
+        apple = self.food_model.objects.create(name='apple')
+        apple.tags.add('Red', 'red')
 
     def test_update(self):
-        special = self.tag_model.objects.create(name="special")
+        special = self.tag_model.objects.create(name='special')
         special.save()
 
     def test_add(self):
-        apple = self.food_model.objects.create(name="apple")
-        yummy = self.tag_model.objects.create(name="yummy")
+        apple = self.food_model.objects.create(name='apple')
+        yummy = self.tag_model.objects.create(name='yummy')
         apple.tags.add(yummy)
         
     def test_slugify(self):
-        a = Article.objects.create(title="django-taggit 1.0 Released")
-        a.tags.add("awesome", "release", "AWESOME")
+        a = Article.objects.create(title='django-taggit 1.0 Released')
+        a.tags.add('awesome', 'release', 'AWESOME')
         self.assert_tags_equal(a.tags.all(), [
-            "category-awesome",
-            "category-release",
-            "category-awesome-1"
-        ], attr="slug")
+            'category-awesome',
+            'category-release',
+            'category-awesome-1'
+        ], attr='slug')
+
 
 class TagModelDirectTestCase(TagModelTestCase):
     food_model = DirectFood
     tag_model = Tag
 
+
 class TagModelCustomPKTestCase(TagModelTestCase):
     food_model = CustomPKFood
     tag_model = Tag
 
+
 class TagModelOfficialTestCase(TagModelTestCase):
     food_model = OfficialFood
     tag_model = OfficialTag
+
 
 class TaggableManagerTestCase(BaseTaggingTestCase):
     food_model = Food
@@ -107,7 +113,7 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
     tag_model = Tag
 
     def test_add_tag(self):
-        apple = self.food_model.objects.create(name="apple")
+        apple = self.food_model.objects.create(name='apple')
         self.assertEqual(list(apple.tags.all()), [])
         self.assertEqual(list(self.food_model.tags.all()),  [])
 
@@ -115,7 +121,7 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         self.assert_tags_equal(apple.tags.all(), ['green'])
         self.assert_tags_equal(self.food_model.tags.all(), ['green'])
 
-        pear = self.food_model.objects.create(name="pear")
+        pear = self.food_model.objects.create(name='pear')
         pear.tags.add('green')
         self.assert_tags_equal(pear.tags.all(), ['green'])
         self.assert_tags_equal(self.food_model.tags.all(), ['green'])
@@ -133,31 +139,31 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         apple.tags.remove('green')
         self.assert_tags_equal(apple.tags.all(), ['red'])
         self.assert_tags_equal(self.food_model.tags.all(), ['green', 'red'])
-        tag = self.tag_model.objects.create(name="delicious")
+        tag = self.tag_model.objects.create(name='delicious')
         apple.tags.add(tag)
-        self.assert_tags_equal(apple.tags.all(), ["red", "delicious"])
+        self.assert_tags_equal(apple.tags.all(), ['red', 'delicious'])
 
         apple.tags.add('Marlene')
-        self.assert_tags_equal(apple.tags.all(), ["red", "delicious", "Marlene"])
+        self.assert_tags_equal(apple.tags.all(), ['red', 'delicious', 'Marlene'])
         apple.tags.remove('Marlene')
 
         settings.TAGGIT_FORCE_LOWERCASE = True
         apple.tags.add('Marlene')
-        self.assert_tags_equal(apple.tags.all(), ["red", "delicious", "marlene"])
+        self.assert_tags_equal(apple.tags.all(), ['red', 'delicious', 'marlene'])
 
         apple.tags.remove('Marlene')
         settings.TAGGIT_FORCE_LOWERCASE = False
 
         apple.delete()
-        self.assert_tags_equal(self.food_model.tags.all(), ["green"])
+        self.assert_tags_equal(self.food_model.tags.all(), ['green'])
 
     def test_set_tag(self):
-        banana = self.food_model.objects.create(name="banana")
-        pear = self.food_model.objects.create(name="pear")
+        banana = self.food_model.objects.create(name='banana')
+        pear = self.food_model.objects.create(name='pear')
          
-        tag = self.tag_model.objects.create(name="yellow")
+        tag = self.tag_model.objects.create(name='yellow')
         banana.tags.add(tag)
-        tag2 = self.tag_model.objects.create(name="slippery")
+        tag2 = self.tag_model.objects.create(name='slippery')
         banana.tags.add(tag2)
         self.assert_tags_equal(self.food_model.tags.all(), ['yellow', 'slippery'])
         self.assert_tags_equal(banana.tags.all(), ['yellow', 'slippery'])
@@ -165,22 +171,22 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         taggeditem_banana_yellow = banana.tags.through.objects.filter(tag=tag).all()[0]
         taggeditem_banana_slippery = banana.tags.through.objects.filter(tag=tag2).all()[0]
 
-        pear.tags.set('yellow','slippery');
+        pear.tags.set('yellow','slippery')
         self.assert_tags_equal(self.food_model.tags.all(), ['yellow', 'slippery'])
         self.assert_tags_equal(pear.tags.all(), ['yellow', 'slippery'])
 
         taggeditem_pear_yellow = pear.tags.through.objects.filter(tag=tag).all()[0]
         taggeditem_pear_slippery = pear.tags.through.objects.filter(tag=tag2).all()[0]
 
-        banana.tags.set(tag2,tag,"funny","sweet","crazy","fruit")
-        self.assert_tags_equal(banana.tags.all(), ['yellow','slippery','funny','sweet','crazy','fruit'])
+        banana.tags.set(tag2,tag, 'funny', 'sweet', 'crazy', 'fruit')
+        self.assert_tags_equal(banana.tags.all(), ['yellow', 'slippery', 'funny', 'sweet', 'crazy', 'fruit'])
         self.assert_tags_equal(pear.tags.all(), ['yellow', 'slippery'])
         
         # Test that the primary keys in the TaggedItem model are preserved
-        self.assertEqual(banana.tags.through.objects.filter(tag=tag).all()[0].pk,taggeditem_banana_yellow.id)
-        self.assertEqual(banana.tags.through.objects.filter(tag=tag2).all()[0].pk,taggeditem_banana_slippery.id)
-        self.assertEqual(pear.tags.through.objects.filter(tag=tag).all()[0].pk,taggeditem_pear_yellow.id)
-        self.assertEqual(pear.tags.through.objects.filter(tag=tag2).all()[0].pk,taggeditem_pear_slippery.id)
+        self.assertEqual(banana.tags.through.objects.filter(tag=tag).all()[0].pk, taggeditem_banana_yellow.id)
+        self.assertEqual(banana.tags.through.objects.filter(tag=tag2).all()[0].pk, taggeditem_banana_slippery.id)
+        self.assertEqual(pear.tags.through.objects.filter(tag=tag).all()[0].pk, taggeditem_pear_yellow.id)
+        self.assertEqual(pear.tags.through.objects.filter(tag=tag2).all()[0].pk, taggeditem_pear_slippery.id)
 
         banana.tags.set()
         self.assert_tags_equal(banana.tags.all(), [])
@@ -361,6 +367,7 @@ class TaggableManagerDirectTestCase(TaggableManagerTestCase):
     housepet_model = DirectHousePet
     taggeditem_model = TaggedPet
 
+
 class TaggableManagerCustomPKTestCase(TaggableManagerTestCase):
     food_model = CustomPKFood
     pet_model = CustomPKPet
@@ -371,6 +378,7 @@ class TaggableManagerCustomPKTestCase(TaggableManagerTestCase):
         # TODO with a charfield pk, pk is never None, so taggit has no way to
         # tell if the instance is saved or not
         pass
+
 
 class TaggableManagerOfficialTestCase(TaggableManagerTestCase):
     food_model = OfficialFood
@@ -403,7 +411,7 @@ class TaggableFormTestCase(BaseTaggingTestCase):
 
         f = self.form_class({'name': 'apple', 'tags': 'green, red, yummy'})
         self.assert_form_renders(f, """<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" value="apple" maxlength="50" /></td></tr>
-<tr><th><label for="id_tags">Tags:</label></th><td><input type="text" name="tags" value="green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
+<tr><th><label for="id_tags">Tags:</label></th><td><input class="taggit-tags" type="text" name="tags" value="green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
         f.save()
         apple = self.food_model.objects.get(name='apple')
         self.assert_tags_equal(apple.tags.all(), ['green', 'red', 'yummy'])
@@ -419,17 +427,17 @@ class TaggableFormTestCase(BaseTaggingTestCase):
 
         f = self.form_class(instance=apple)
         self.assert_form_renders(f, """<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" value="apple" maxlength="50" /></td></tr>
-<tr><th><label for="id_tags">Tags:</label></th><td><input type="text" name="tags" value="delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
+<tr><th><label for="id_tags">Tags:</label></th><td><input class="taggit-tags" type="text" name="tags" value="delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
 
         apple.tags.add('has,comma')
         f = self.form_class(instance=apple)
         self.assert_form_renders(f, """<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" value="apple" maxlength="50" /></td></tr>
-<tr><th><label for="id_tags">Tags:</label></th><td><input type="text" name="tags" value="&quot;has,comma&quot;, delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
+<tr><th><label for="id_tags">Tags:</label></th><td><input class="taggit-tags" type="text" name="tags" value="&quot;has,comma&quot;, delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
 
         apple.tags.add('has space')
         f = self.form_class(instance=apple)
         self.assert_form_renders(f, """<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" value="apple" maxlength="50" /></td></tr>
-<tr><th><label for="id_tags">Tags:</label></th><td><input type="text" name="tags" value="&quot;has space&quot;, &quot;has,comma&quot;, delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
+<tr><th><label for="id_tags">Tags:</label></th><td><input class="taggit-tags" type="text" name="tags" value="&quot;has space&quot;, &quot;has,comma&quot;, delicious, green, red, yummy" id="id_tags" /><br />%(help_start)sA comma-separated list of tags.%(help_stop)s</td></tr>""")
 
     def test_formfield(self):
         tm = TaggableManager(verbose_name='categories', help_text='Add some categories', blank=True)
@@ -444,13 +452,16 @@ class TaggableFormTestCase(BaseTaggingTestCase):
         ff = tm.formfield()
         self.assertRaises(ValidationError, ff.clean, "")
 
+
 class TaggableFormDirectTestCase(TaggableFormTestCase):
     form_class = DirectFoodForm
     food_model = DirectFood
 
+
 class TaggableFormCustomPKTestCase(TaggableFormTestCase):
     form_class = CustomPKFoodForm
     food_model = CustomPKFood
+
 
 class TaggableFormOfficialTestCase(TaggableFormTestCase):
     form_class = OfficialFoodForm

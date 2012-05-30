@@ -98,8 +98,11 @@ class TaggableManager(RelatedField):
             "label": self.verbose_name,
             "help_text": self.help_text,
             "required": not self.blank,
-            "widget": TagAutocomplete,
         }
+        if settings.TAGGIT_AUTOCOMPLETE_WIDGET:
+            defaults.extend({
+                "widget": TagAutocomplete,
+            })
         defaults.update(kwargs)
         
         return form_class(**defaults)
@@ -198,7 +201,7 @@ class _TaggableManager(models.Manager):
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
 
     @require_instance_manager
-    def set(self,*tags):
+    def set(self, *tags):
         have = set(tag.name for tag in self.get_query_set().all())
         wanted = set([tag.name if isinstance(tag, self.through.tag_model()) else tag for tag in tags])
         
@@ -235,10 +238,10 @@ class _TaggableManager(models.Manager):
         qs = qs.order_by('-n')
         
         if filters is not None:
-	        qs = qs.filter(**filters)
-	
+            qs = qs.filter(**filters)
+    
         if num is not None:
-	        qs = qs[:num]
+            qs = qs[:num]
         
         # TODO: This all feels like a bit of a hack.
         items = {}
@@ -260,7 +263,9 @@ class _TaggableManager(models.Manager):
             for ct, obj_ids in preload.iteritems():
                 ct = ContentType.objects.get_for_id(ct)
                 for obj in ct.model_class()._default_manager.filter(pk__in=obj_ids):
-                    items[(ct.pk, obj.pk)] = obj
+                    # NOTE: Important! Casting to unicode because of GenericTaggedItemBase
+                    # model change: IntegerField -> CharField.
+                    items[(ct.pk, unicode(obj.pk))] = obj
 
         results = []
         for result in qs:

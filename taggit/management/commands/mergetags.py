@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
-from taggit.models import Tag, TaggedItem
 from django.core.exceptions import ObjectDoesNotExist
+
+from taggit.models import Tag, TaggedItem
+
 
 class Command(BaseCommand):
     args = '<tag_slug tag_slug ... destination_slug>'

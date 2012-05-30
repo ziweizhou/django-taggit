@@ -128,6 +128,7 @@ class TaggedItemBase(ItemBase):
 
 class GenericTaggedItemBase(ItemBase):
     object_id = models.CharField(max_length=100, verbose_name=_('Object id'), db_index=True)
+
     if django.VERSION < (1, 2):
         content_type = models.ForeignKey(
             ContentType,
@@ -143,7 +144,7 @@ class GenericTaggedItemBase(ItemBase):
     content_object = GenericForeignKey()
 
     class Meta:
-        abstract=True
+        abstract = True
 
     @classmethod
     def lookup_kwargs(cls, instance):

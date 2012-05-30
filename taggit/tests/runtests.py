@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import os
 import sys
 
 from django.conf import settings
+
 
 if not settings.configured:
     settings.configure(
@@ -15,7 +15,10 @@ if not settings.configured:
             'django.contrib.contenttypes',
             'taggit',
             'taggit.tests',
-        ]
+        ],
+        ROOT_URLCONF='taggit.urls',
+        TAGGIT_AUTOCOMPLETE_WIDGET=False,
+        TAGGIT_FORCE_LOWERCASE=False,
     )
 
 

@@ -1,6 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin import SimpleListFilter
-from models import TagBase
+
+from taggit.models import TagBase
+
 
 class TagNameListFilter(SimpleListFilter):
     # Human-readable title which will be displayed in the
@@ -23,7 +25,7 @@ class TagNameListFilter(SimpleListFilter):
         
         options = []
         for tag in tags:
-            options.append((tag.slug, tag.name));
+            options.append((tag.slug, tag.name))
         
         return options
 

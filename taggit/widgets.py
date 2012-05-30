@@ -4,9 +4,10 @@ from django.conf import settings
 from django.utils import simplejson
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
-from utils import edit_string_for_tags
+from taggit.utils import edit_string_for_tags
+
 
 class TagAutocomplete(forms.TextInput):
     input_type = 'text'

@@ -3,6 +3,7 @@ from django.utils.functional import wraps
 from django.template.defaultfilters import lower
 from django.conf import settings
 
+
 def stopwords(words):
     # Shacker fork - remove any stopwords defined in settings
     try:
@@ -29,10 +30,9 @@ def parse_tags(tagstring):
         return []
 
     # Should all tags be handled as lowercase?
-    try:
-        settings.TAGGIT_FORCE_LOWERCASE
+    if settings.TAGGIT_FORCE_LOWERCASE:
         tagstring = lower(force_unicode(tagstring))
-    except:
+    else:
         tagstring = force_unicode(tagstring)
 
     # Special case - if there are no commas or double quotes in the
@@ -146,10 +146,12 @@ def edit_string_for_tags(tags):
             names.append(name)
     return u', '.join(sorted(names))
 
+
 def clean_tag_string(tag_string):
     tags = parse_tags(tag_string)
     return edit_string_for_tags(tags)
 	
+
 def require_instance_manager(func):
     @wraps(func)
     def inner(self, *args, **kwargs):
