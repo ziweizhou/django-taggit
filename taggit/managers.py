@@ -179,11 +179,12 @@ class _TaggableManager(models.Manager):
         ])
 
         tag_objs = set(tags) - str_tags
-        # If str_tags has 0 elements Django actually optimizes that to not do a
-        # query.  Malcolm is very smart.
-        existing = self.through.tag_model().objects.filter(
-            name__in=str_tags
-        )
+        if len(str_tags) == 0:
+            existing = self.through.tag_model().objects.none()
+        else: # above check for length of str_tags avoids query here
+            existing = self.through.tag_model().objects.filter(
+                name__regex=r'(^' + '$|^'.join(str_tags) + '$)'
+            )
         tag_objs.update(existing)
         
         existing_names = set(t.name for t in existing)
@@ -209,8 +210,9 @@ class _TaggableManager(models.Manager):
 
     @require_instance_manager
     def remove(self, *tags):
-        self.through.objects.filter(**self._lookup_kwargs()).filter(
-            tag__name__in=tags).delete()
+        if tags:
+            self.through.objects.filter(**self._lookup_kwargs()).filter(
+                tag__name__regex=r'(^' + '$|^'.join(tags) + '$)').delete()
 
     @require_instance_manager
     def clear(self):
