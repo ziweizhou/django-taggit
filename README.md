@@ -65,5 +65,13 @@ For more info checkout out the
 And for questions about usage or development you can contact
 the `mailinglist <http://groups.google.com/group/django-taggit>`_.
 
-Merger's notes:
+Merger's notes
+--------------
+
+* Decided to stay with version 0.9.4 changed by shacker.
+* Decided to leave markdown version of README.
+* Decided not to merge forks:
+    * extending base functionality or ones that would lower performance;
+    * being much against PEP-8;
+    * with changes solving specific problems.
 * Combined alex/django-taggit & fcurella/django-taggit-autocomplete by AGoodId (https://github.com/AGoodId/django-taggit).

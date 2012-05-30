@@ -1,7 +1,16 @@
 Changelog
 =========
 
-1.0.0
+0.9.4
+~~~~~
+
+Unreleased.
+
+ * *Backwards incompatible*  The ``name`` field of the ``Tag`` model is
+   now marked as unique. You should update your database schema using
+   ``ALTER TABLE taggit_tag ADD UNIQUE (name)``.
+
+0.9.2
 ~~~~~
 
 Unreleased.
@@ -9,8 +18,6 @@ Unreleased.
  * *Backwards incompatible*  Forms containing a :class:`TaggableManager` by
    default now require tags, to change this provide ``blank=True`` to the
    :class:`TaggableManager`.
-
-
 
 0.9.0
 ~~~~~
