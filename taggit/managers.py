@@ -263,9 +263,7 @@ class _TaggableManager(models.Manager):
             for ct, obj_ids in preload.iteritems():
                 ct = ContentType.objects.get_for_id(ct)
                 for obj in ct.model_class()._default_manager.filter(pk__in=obj_ids):
-                    # NOTE: Important! Casting to unicode because of GenericTaggedItemBase
-                    # model change: IntegerField -> CharField.
-                    items[(ct.pk, unicode(obj.pk))] = obj
+                    items[(ct.pk, obj.pk)] = obj
 
         results = []
         for result in qs:

@@ -127,7 +127,7 @@ class TaggedItemBase(ItemBase):
 
 
 class GenericTaggedItemBase(ItemBase):
-    object_id = models.CharField(max_length=100, verbose_name=_('Object id'), db_index=True)
+    object_id = models.IntegerField(verbose_name=_('Object id'), db_index=True)
 
     if django.VERSION < (1, 2):
         content_type = models.ForeignKey(
