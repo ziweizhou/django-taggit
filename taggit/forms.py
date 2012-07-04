@@ -8,6 +8,12 @@ from taggit.utils import parse_tags, edit_string_for_tags
 
 class TagWidget(forms.TextInput):
 
+    def __init__(self, attrs=None):
+        if attrs is not None:
+            self.attrs = attrs.copy()
+        else:
+            self.attrs = {'class': 'taggit-tags'}
+
     def get_media(self):
         """
         A method used to dynamically generate the media property,
@@ -41,9 +47,6 @@ class TagWidget(forms.TextInput):
     def render(self, name, value, attrs=None):
         if value is not None and not isinstance(value, basestring):
             value = edit_string_for_tags([o.tag for o in value.select_related("tag")])
-        if attrs is None:
-            attrs = {}
-        attrs.update({'class': 'taggit-tags'})
         return super(TagWidget, self).render(name, value, attrs)
 
     def _has_changed(self, initial, data):
@@ -67,6 +70,7 @@ class TagWidget(forms.TextInput):
 
 
 class TagField(forms.CharField):
+
     widget = TagWidget
 
     def clean(self, value):
