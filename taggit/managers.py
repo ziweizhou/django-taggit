@@ -51,6 +51,7 @@ class TaggableManager(RelatedField):
         self.serialize = False
         self.null = True
         self.creation_counter = models.Field.creation_counter
+        self.related_name = related_name
         models.Field.creation_counter += 1
 
     def __get__(self, instance, model):
