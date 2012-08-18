@@ -27,8 +27,9 @@ except NameError:
 
 
 class TaggableRel(ManyToManyRel):
-    def __init__(self, related_name):
-        self.related_name = None
+    def __init__(self, related_name=None):
+        super(TaggableRel, self).__init__(None, related_name)
+        self.related_name = related_name
         self.limit_choices_to = {}
         self.symmetrical = True
         self.multiple = True
@@ -85,7 +86,7 @@ class TaggableManager(RelatedField):
         )
         self.rel.to = self.through._meta.get_field("tag").rel.to
         if self.use_gfk:
-            tagged_items = GenericRelation(self.through)
+            tagged_items = GenericRelation(self.through, related_name=self.related_name)
             tagged_items.contribute_to_class(cls, "tagged_items")
 
     def save_form_data(self, instance, value):
