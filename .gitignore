@@ -7,4 +7,5 @@ MyProject.kpf
 .tox/
 .project
 .pydevproject
+.coverage
 nosetests.xml
