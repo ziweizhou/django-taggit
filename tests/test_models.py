@@ -3,7 +3,7 @@ import django
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import connection
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase
 
 from taggit.managers import TaggableManager
 from taggit.models import Tag, TaggedItem
@@ -145,17 +145,18 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
 
         apple.tags.add('Marlene')
         self.assert_tags_equal(apple.tags.all(), ['red', 'delicious', 'Marlene'])
-        apple.tags.remove('Marlene')
+
+    def test_force_lowercase(self):
+        apple = self.food_model.objects.create(name='apple')
 
         settings.TAGGIT_FORCE_LOWERCASE = True
         apple.tags.add('Marlene')
-        self.assert_tags_equal(apple.tags.all(), ['red', 'delicious', 'marlene'])
+        self.assert_tags_equal(apple.tags.all(), ['marlene'])
 
         apple.tags.remove('Marlene')
-        settings.TAGGIT_FORCE_LOWERCASE = False
 
         apple.delete()
-        self.assert_tags_equal(self.food_model.tags.all(), ['green'])
+        self.assert_tags_equal(apple.tags.all(), [])
 
     def test_set_tag(self):
         banana = self.food_model.objects.create(name='banana')

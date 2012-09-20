@@ -211,9 +211,13 @@ class _TaggableManager(models.Manager):
 
     @require_instance_manager
     def remove(self, *tags):
-        if tags:
-            self.through.objects.filter(**self._lookup_kwargs()).filter(
-                tag__name__regex=r'(^' + '$|^'.join(tags) + '$)').delete()
+        if not tags:
+            return
+        if self.force_lowercase:
+            tags = [one.lower() for one in tags]
+
+        self.through.objects.filter(**self._lookup_kwargs()).filter(
+            tag__name__regex=r'(^' + '$|^'.join(tags) + '$)').delete()
 
     @require_instance_manager
     def clear(self):
