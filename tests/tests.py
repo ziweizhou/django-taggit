@@ -1,6 +1,5 @@
-from unittest import TestCase as UnitTestCase
-
 import django
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import connection
@@ -8,13 +7,14 @@ from django.test import TestCase, TransactionTestCase
 
 from taggit.managers import TaggableManager
 from taggit.models import Tag, TaggedItem
-from taggit.tests.forms import (FoodForm, DirectFoodForm, CustomPKFoodForm,
+from taggit.utils import parse_tags, edit_string_for_tags
+
+from forms import (FoodForm, DirectFoodForm, CustomPKFoodForm,
     OfficialFoodForm)
-from taggit.tests.models import (Food, Pet, HousePet, DirectFood, DirectPet,
+from models import (Food, Pet, HousePet, DirectFood, DirectPet,
     DirectHousePet, TaggedPet, CustomPKFood, CustomPKPet, CustomPKHousePet,
     TaggedCustomPKPet, OfficialFood, OfficialPet, OfficialHousePet,
     OfficialThroughModel, OfficialTag, Photo, Movie, Article)
-from taggit.utils import parse_tags, edit_string_for_tags
 
 
 class BaseTaggingTest(object):
@@ -59,11 +59,11 @@ class BaseTaggingTestCase(TestCase, BaseTaggingTest):
     pass
 
 
-class BaseTaggingTransactionTestCase(TransactionTestCase, BaseTaggingTest):
+class BaseTaggingTransactionTestCase(TestCase, BaseTaggingTest):
     pass
 
 
-class TagModelTestCase(BaseTaggingTransactionTestCase):
+class TagModelTestCase(BaseTaggingTestCase):
     food_model = Food
     tag_model = Tag
 
@@ -468,7 +468,7 @@ class TaggableFormOfficialTestCase(TaggableFormTestCase):
     food_model = OfficialFood
 
 
-class TagStringParseTestCase(UnitTestCase):
+class TagStringParseTestCase(TestCase):
     """
     Ported from Jonathan Buchanan's `django-tagging
     <http://django-tagging.googlecode.com/>`_

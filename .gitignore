@@ -1,4 +1,4 @@
-*.pyc
+*.py[co]
 .DS_Store
 django_taggit.egg-info/
 dist/
@@ -7,3 +7,4 @@ MyProject.kpf
 .tox/
 .project
 .pydevproject
+nosetests.xml

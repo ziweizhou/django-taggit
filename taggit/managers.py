@@ -102,9 +102,8 @@ class TaggableManager(RelatedField):
             "required": not self.blank,
         }
         if settings.TAGGIT_AUTOCOMPLETE_WIDGET:
-            defaults.extend({
-                "widget": TagAutocomplete,
-            })
+            defaults["widget"] = TagAutocomplete
+
         defaults.update(kwargs)
         
         return form_class(**defaults)
@@ -177,14 +176,10 @@ class _TaggableManager(models.Manager):
             tags = lower_tags
 
         tags = [force_unicode(t) if not isinstance(t, self.through.tag_model()) else t for t in tags]
-        str_tags = set([
-            t
-            for t in tags
-            if not isinstance(t, self.through.tag_model())
-        ])
+        str_tags = set([t for t in tags if not isinstance(t, self.through.tag_model())])
 
         tag_objs = set(tags) - str_tags
-        if len(str_tags) == 0:
+        if not str_tags:
             existing = self.through.tag_model().objects.none()
         else: # above check for length of str_tags avoids query here
             existing = self.through.tag_model().objects.filter(
@@ -194,9 +189,10 @@ class _TaggableManager(models.Manager):
         
         existing_names = set(t.name for t in existing)
         existing_names_lower = set(t.name.lower() for t in existing)
-        
-        for new_name in str_tags - existing_names:
-            if len(set([new_name.lower()]) - existing_names_lower) > 0:
+
+        left_tags = str_tags - existing_names
+        for new_name in left_tags:
+            if set([new_name.lower()]) - existing_names_lower:
                 tag_objs.add(self.through.tag_model().objects.create(name=new_name))
 
         for tag in tag_objs:

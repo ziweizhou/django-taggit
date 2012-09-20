@@ -1,4 +1,4 @@
-import django
+from django import VERSION
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db import models, IntegrityError, transaction
@@ -7,6 +7,7 @@ from django.template.defaultfilters import slugify as default_slugify
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.core.urlresolvers import reverse
 
+DJANGO_12 = VERSION >= (1, 2)
 
 class TagBase(models.Model):
     name = models.CharField(verbose_name=_('Name'), unique=True, max_length=100)
@@ -21,7 +22,7 @@ class TagBase(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
             self.slug = self.slugify(self.name)
-            if django.VERSION >= (1, 2):
+            if DJANGO_12:
                 from django.db import router
                 using = kwargs.get("using") or router.db_for_write(
                     type(self), instance=self)
@@ -33,7 +34,7 @@ class TagBase(models.Model):
             else:
                 trans_kwargs = {}
             i = 0
-            while True:
+            while 1:
                 i += 1
                 try:
                     sid = transaction.savepoint(**trans_kwargs)
@@ -107,7 +108,7 @@ class ItemBase(models.Model):
 
 
 class TaggedItemBase(ItemBase):
-    if django.VERSION < (1, 2):
+    if not DJANGO_12:
         tag = models.ForeignKey(Tag, related_name="%(class)s_items")
     else:
         tag = models.ForeignKey(Tag, related_name="%(app_label)s_%(class)s_items")
@@ -129,7 +130,7 @@ class TaggedItemBase(ItemBase):
 class GenericTaggedItemBase(ItemBase):
     object_id = models.IntegerField(verbose_name=_('Object id'), db_index=True)
 
-    if django.VERSION < (1, 2):
+    if not DJANGO_12:
         content_type = models.ForeignKey(
             ContentType,
             verbose_name=_('Content type'),
