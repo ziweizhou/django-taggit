@@ -1,5 +1,7 @@
 import django
 
+from mock import patch
+
 from nose import tools
 
 from django.conf import settings
@@ -10,7 +12,6 @@ from django.test import TestCase
 from taggit.managers import TaggableManager
 from taggit.models import Tag, TaggedItem
 from taggit.utils import parse_tags, edit_string_for_tags
-from taggit import settings as taggit_settings
 
 from forms import (FoodForm, DirectFoodForm, CustomPKFoodForm,
     OfficialFoodForm)
@@ -149,10 +150,11 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         apple.tags.add('Marlene')
         self.assert_tags_equal(apple.tags.all(), ['red', 'delicious', 'Marlene'])
 
-    def test_force_lowercase(self):
+    @patch('taggit.managers.settings')
+    def test_force_lowercase(self, mocked_settings):
+        mocked_settings.TAGGIT_FORCE_LOWERCASE = True
         apple = self.food_model.objects.create(name='apple')
 
-        taggit_settings.TAGGIT_FORCE_LOWERCASE = True
         apple.tags.add('Marlene')
         self.assert_tags_equal(apple.tags.all(), ['marlene'])
 
