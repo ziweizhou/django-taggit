@@ -1,14 +1,14 @@
 from django import VERSION
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from django.db import models, transaction, IntegrityError, DatabaseError
+from django.db import models, transaction, IntegrityError
 from django.db.models.query import QuerySet
 from django.template.defaultfilters import slugify as default_slugify
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.core.urlresolvers import reverse
 
 
-DJANGO_12 = VERSION >= (1, 2)
+DJANGO_12 = (VERSION >= (1, 2))
 
 
 class TagBase(models.Model):
@@ -43,7 +43,7 @@ class TagBase(models.Model):
                     res = super(TagBase, self).save(*args, **kwargs)
                     transaction.savepoint_commit(sid, **trans_kwargs)
                     return res
-                except (IntegrityError, DatabaseError):
+                except IntegrityError:
                     transaction.savepoint_rollback(sid, **trans_kwargs)
                     self.slug = self.slugify(self.name, i)
         else:
