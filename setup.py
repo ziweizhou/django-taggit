@@ -8,6 +8,13 @@ f = open(os.path.join(os.path.dirname(__file__), 'README.md'))
 readme = f.read()
 f.close()
 
+
+test_requires = [
+    'nose',
+    'coverage',
+    'mock',
+]
+
 setup(
     name='django-taggit',
     version=".".join(map(str, VERSION)),
@@ -32,5 +39,5 @@ setup(
         'Programming Language :: Python',
         'Framework :: Django',
     ],
-    test_suite='taggit.tests.runtests.runtests',
+    test_suite='tests.run_tests.run_all',
 )
