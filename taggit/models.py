@@ -133,17 +133,15 @@ class GenericTaggedItemBase(ItemBase):
     object_id = models.IntegerField(verbose_name=_('Object id'), db_index=True)
 
     if not DJANGO_12:
-        content_type = models.ForeignKey(
-            ContentType,
-            verbose_name=_('Content type'),
-            related_name="%(class)s_tagged_items"
-        )
+        ct_related_name = "%(class)s_tagged_items"
     else:
-        content_type = models.ForeignKey(
-            ContentType,
-            verbose_name=_('Content type'),
-            related_name="%(app_label)s_%(class)s_tagged_items"
-        )
+        ct_related_name="%(app_label)s_%(class)s_tagged_items"
+
+    content_type = models.ForeignKey(
+                ContentType,
+                verbose_name=_('Content type'),
+                related_name=ct_related_name
+            )
     content_object = GenericForeignKey()
 
     class Meta:
