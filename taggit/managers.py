@@ -5,7 +5,6 @@ from django.db.models.fields.related import ManyToManyRel, RelatedField
 from django.db.models.related import RelatedObject
 from django.db.models.fields.related import add_lazy_relation
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
 
 from taggit import settings
 from taggit.forms import TagField
@@ -167,36 +166,36 @@ class _TaggableManager(models.Manager):
 
     @require_instance_manager
     def add(self, *tags):
-        if self.force_lowercase:
-            lower_tags = []
-            for t in tags:
-                if not isinstance(t, self.through.tag_model()):
-                    t = t.lower()
-                lower_tags.append(t)
-            tags = lower_tags
+        if not tags:
+            return
 
-        tags = [force_unicode(t) if not isinstance(t, self.through.tag_model()) else t for t in tags]
-        str_tags = set([t for t in tags if not isinstance(t, self.through.tag_model())])
+        str_tags = set()
+        obj_tags = set()
 
-        tag_objs = set(tags) - str_tags
-        if not str_tags:
-            existing = self.through.tag_model().objects.none()
-        else: # above check for length of str_tags avoids query here
-            existing = self.through.tag_model().objects.filter(
-                name__regex=r'(^' + '$|^'.join(str_tags) + '$)'
-            )
-        tag_objs.update(existing)
-        
-        existing_names = set(t.name for t in existing)
-        existing_names_lower = set(t.name.lower() for t in existing)
+        for one in tags:
+            if not isinstance(one, basestring):
+                obj_tags.add(one)
+            else:
+                value = one.lower() if self.force_lowercase else one
+                str_tags.add(value)
 
-        left_tags = str_tags - existing_names
-        for new_name in left_tags:
-            if set([new_name.lower()]) - existing_names_lower:
-                tag_objs.add(self.through.tag_model().objects.create(name=new_name))
+        if str_tags:
+            existing = self.through.tag_model().objects.all()
+            q = models.Q()
+            for one in str_tags:
+                q |= models.Q(name__exact=one)
 
-        for tag in tag_objs:
+            existing = existing.filter(q)
+            obj_tags.update(existing)
+
+        to_create = str_tags - set([one.name for one in obj_tags])
+        for new_name in to_create:
+            x = self.through.tag_model().objects.create(name=new_name)
+            obj_tags.add(x)
+
+        for tag in obj_tags:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
+
 
     @require_instance_manager
     def set(self, *tags):
