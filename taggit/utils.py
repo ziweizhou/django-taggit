@@ -1,7 +1,8 @@
 from django.utils.encoding import force_unicode
 from django.utils.functional import wraps
 from django.template.defaultfilters import lower
-from django.conf import settings
+
+from taggit import settings
 
 
 def stopwords(words):
