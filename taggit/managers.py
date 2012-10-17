@@ -156,7 +156,7 @@ class _TaggableManager(models.Manager):
         self.through = through
         self.model = model
         self.instance = instance
-        self.force_lowercase = getattr(settings, 'TAGGIT_FORCE_LOWERCASE', False)
+        self.force_lowercase = settings.TAGGIT_FORCE_LOWERCASE
 
     def get_query_set(self):
         return self.through.tags_for(self.model, self.instance)
