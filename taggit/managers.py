@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.fields.related import ManyToManyRel, RelatedField
 from django.db.models.related import RelatedObject
 from django.db.models.fields.related import add_lazy_relation
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from taggit import settings
@@ -184,12 +183,12 @@ class _TaggableManager(models.Manager):
             existing = self.through.tag_model().objects.all()
             q = models.Q()
             for one in str_tags:
-                q |= models.Q(slug=slugify(one))
+                q |= models.Q(name__exact=one)
 
             existing = existing.filter(q)
             obj_tags.update(existing)
 
-        to_create = set([slugify(one) for one in str_tags]) - set([one.slug for one in obj_tags])
+        to_create = str_tags - set([one.name for one in obj_tags])
         for new_name in to_create:
             x = self.through.tag_model().objects.create(name=new_name)
             obj_tags.add(x)
@@ -197,14 +196,15 @@ class _TaggableManager(models.Manager):
         for tag in obj_tags:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
 
+
     @require_instance_manager
     def set(self, *tags):
         have = set(tag.name for tag in self.get_query_set().all())
         wanted = set([tag.name if isinstance(tag, self.through.tag_model()) else tag for tag in tags])
-
+        
         add = wanted - have
         remove = have - wanted
-
+        
         self.add(*list(add))
         self.remove(*list(remove))
 
