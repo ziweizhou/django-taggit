@@ -30,6 +30,9 @@ def parse_tags(tagstring):
     if not tagstring:
         return []
 
+    if not settings.TAGGIT_ENABLE_SPACE_SPLIT_IF_NOT_QUOTES:
+        tagstring = "".join([tagstring.strip().rstrip(","), ","])
+
     # Should all tags be handled as lowercase?
     if settings.TAGGIT_FORCE_LOWERCASE:
         tagstring = lower(force_unicode(tagstring))
