@@ -19,7 +19,10 @@ class TagAutocomplete(forms.TextInput):
         if value is not None and not isinstance(value, basestring):
             value = [edit_string_for_tags([o.tag]) for o in value.select_related("tag")]
         else:
-            value = value.split(',')
+            if value is not None:
+                value = value.split(',')
+            else:
+                value = []
         html = super(TagAutocomplete, self).render(
             name+"_dummy",
             ",".join(value),
