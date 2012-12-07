@@ -64,7 +64,7 @@
                 var org_li = $("#as-original-" + x);
                 var results_holder = $('<div class="as-results" id="as-results-' + x + '"></div>').hide();
                 var results_ul = $('<ul class="as-list"></ul>');
-                var values_input = $('<input type="hidden" class="tags" name="tags" id="tags" />') /*changed name of hidden input to work with begood*/
+                var values_input = $('<input type="hidden" class="tags" name="'+ $(this).attr('name').replace('_dummy', '') +'" id="tags" />') /*changed name of hidden input to work with begood*/
                 ;
                 var prefill_value = "";
                 if (typeof opts.preFill == "string") {
