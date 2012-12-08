@@ -13,21 +13,6 @@ from taggit.utils import require_instance_manager
 from taggit.widgets import TagAutocomplete
 
 
-try:
-    all
-except NameError:
-    # 2.4 compat
-    try:
-        from django.utils.itercompat import all
-    except ImportError:
-        # 1.1.X compat
-        def all(iterable):
-            for item in iterable:
-                if not item:
-                    return False
-            return True
-
-
 class TaggableRel(ManyToManyRel):
     def __init__(self, related_name=None):
         super(TaggableRel, self).__init__(None, related_name)
@@ -104,7 +89,7 @@ class TaggableManager(RelatedField):
             defaults["widget"] = TagAutocomplete
 
         defaults.update(kwargs)
-        
+
         return form_class(**defaults)
 
     def value_from_object(self, instance):
@@ -117,7 +102,7 @@ class TaggableManager(RelatedField):
 
     def m2m_reverse_name(self):
         return self.through._meta.get_field_by_name("tag")[0].column
-    
+
     def m2m_reverse_field_name(self):
         return self.through._meta.get_field_by_name("tag")[0].name
 
@@ -201,10 +186,10 @@ class _TaggableManager(models.Manager):
     def set(self, *tags):
         have = set(tag.name for tag in self.get_query_set().all())
         wanted = set([tag.name if isinstance(tag, self.through.tag_model()) else tag for tag in tags])
-        
+
         add = wanted - have
         remove = have - wanted
-        
+
         self.add(*list(add))
         self.remove(*list(remove))
 
@@ -236,13 +221,13 @@ class _TaggableManager(models.Manager):
         subq = self.all()
         qs = qs.filter(tag__in=list(subq))
         qs = qs.order_by('-n')
-        
+
         if filters is not None:
             qs = qs.filter(**filters)
-    
+
         if num is not None:
             qs = qs[:num]
-        
+
         # TODO: This all feels like a bit of a hack.
         items = {}
         if len(lookup_keys) == 1:
