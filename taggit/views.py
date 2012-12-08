@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list
 from django.http import HttpResponse
@@ -10,10 +11,10 @@ from taggit.utils import edit_string_for_tags
 
 
 def ajax(request):
-    ''' get all of the tags available and return as a json array'''
+    """Get all of the tags available and return as a json array"""
     data = serializers.serialize('json', Tag.objects.order_by('slug').all(),
         fields=('name'), ensure_ascii=False)
-    return HttpResponse(data)
+    return HttpResponse(data, content_type='application/json')
 
 
 def tagged_object_list(request, slug, queryset, **kwargs):
