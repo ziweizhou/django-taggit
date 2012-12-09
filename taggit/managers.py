@@ -104,7 +104,6 @@ class TaggableManager(RelatedField):
             defaults["widget"] = TagAutocomplete
 
         defaults.update(kwargs)
-        
         return form_class(**defaults)
 
     def value_from_object(self, instance):
@@ -201,10 +200,10 @@ class _TaggableManager(models.Manager):
     def set(self, *tags):
         have = set(tag.name for tag in self.get_query_set().all())
         wanted = set([tag.name if isinstance(tag, self.through.tag_model()) else tag for tag in tags])
-        
+
         add = wanted - have
         remove = have - wanted
-        
+
         self.add(*list(add))
         self.remove(*list(remove))
 
@@ -236,13 +235,13 @@ class _TaggableManager(models.Manager):
         subq = self.all()
         qs = qs.filter(tag__in=list(subq))
         qs = qs.order_by('-n')
-        
+
         if filters is not None:
             qs = qs.filter(**filters)
-    
+
         if num is not None:
             qs = qs[:num]
-        
+
         # TODO: This all feels like a bit of a hack.
         items = {}
         if len(lookup_keys) == 1:
