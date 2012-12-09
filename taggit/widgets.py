@@ -17,31 +17,35 @@ class TagAutocomplete(forms.TextInput):
             attrs = dict(self.attrs.items() + attrs.items())
         list_view = reverse('taggit-list')
         if value is not None and not isinstance(value, basestring):
-            value = simplejson.dumps(
-              [{'value': u'%s' % edit_string_for_tags([o.tag])} for o in value.select_related("tag")]
-            )
+            value = [edit_string_for_tags([o.tag]) for o in value.select_related("tag")]
         else:
-            value = []
+            if value is not None:
+                value = value.split(',')
+            else:
+                value = []
         html = super(TagAutocomplete, self).render(
             name+"_dummy",
-            u'',
+            ",".join(value),
             attrs
         )
         allow_add = "false"
         if 'allow_add' in attrs and attrs['allow_add']:
             allow_add = "true"
-        js_config = u"{startText: \"%s\", \
-            preFill: %s, \
+        js_config = u"""{startText: "%s", \
+            preFill: prefill, \
             allowAdd: %s, \
-            allowAddMessage: \"%s\"}" % (
+            allowAddMessage: "%s"}""" % (
                 escapejs(_("Enter Tag Here")),
-                value,
                 allow_add,
                 escapejs(_("Please choose an existing tag")),
             )
-        js = u"<script type=\"text/javascript\">jQuery = django.jQuery; \
-            jQuery().ready(function() { jQuery(\"#%s\").autoSuggest(\"%s\", \
-            %s); });</script>" % (
+        js = u"""<script type="text/javascript">jQuery = django.jQuery; \
+            jQuery().ready(function() { \
+            var prefill = [];
+            jQuery.each(jQuery('input[name="%s_dummy"]').val().split(','),function(i,v){prefill.push({'value': v})});
+            jQuery("#%s").autoSuggest("%s", \
+            %s); });</script>""" % (
+                name,
                 attrs['id'],
                 list_view,
                 js_config
