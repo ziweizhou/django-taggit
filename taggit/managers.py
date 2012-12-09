@@ -13,21 +13,6 @@ from taggit.utils import require_instance_manager
 from taggit.widgets import TagAutocomplete
 
 
-try:
-    all
-except NameError:
-    # 2.4 compat
-    try:
-        from django.utils.itercompat import all
-    except ImportError:
-        # 1.1.X compat
-        def all(iterable):
-            for item in iterable:
-                if not item:
-                    return False
-            return True
-
-
 class TaggableRel(ManyToManyRel):
     def __init__(self, related_name=None):
         super(TaggableRel, self).__init__(None, related_name)
@@ -116,7 +101,7 @@ class TaggableManager(RelatedField):
 
     def m2m_reverse_name(self):
         return self.through._meta.get_field_by_name("tag")[0].column
-    
+
     def m2m_reverse_field_name(self):
         return self.through._meta.get_field_by_name("tag")[0].name
 
