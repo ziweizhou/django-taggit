@@ -34,10 +34,14 @@ class TagBase(models.Model):
                     sid = transaction.savepoint(**trans_kwargs)
                     res = super(TagBase, self).save(*args, **kwargs)
                     transaction.savepoint_commit(sid, **trans_kwargs)
-                    return res
-                except IntegrityError:
+                except IntegrityError, e:
+                    if 'slug' not in e.message:
+                        raise
+
                     transaction.savepoint_rollback(sid, **trans_kwargs)
                     self.slug = self.slugify(self.name, i)
+                else:
+                    return res
         else:
             return super(TagBase, self).save(*args, **kwargs)
 
