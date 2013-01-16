@@ -248,6 +248,10 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
             list(self.food_model.objects.filter(tags__name__in=["green"])),
             [apple, pear]
         )
+        tools.assert_equals(
+            list(self.food_model.objects.filter(tags__name__in = ['green']).filter(tags__name__in = ['red'])),
+            [apple]
+        )
 
         kitty = self.pet_model.objects.create(name="kitty")
         kitty.tags.add("fuzzy", "red")
@@ -268,6 +272,7 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
             set(map(lambda o: o.pk, self.pet_model.objects.filter(tags__name__in=["fuzzy"]))),
             set([kitty.pk, cat.pk])
         )
+        
 
     def test_lookup_bulk(self):
         apple = self.food_model.objects.create(name="apple")
