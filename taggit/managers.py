@@ -72,6 +72,7 @@ class TaggableManager(RelatedField):
                 self.post_through_setup(cls)
 
     def post_through_setup(self, cls):
+        self.related = RelatedObject(cls, self.model, self)
         self.use_gfk = (
             self.through is None or issubclass(self.through, GenericTaggedItemBase)
         )
