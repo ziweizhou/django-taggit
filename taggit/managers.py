@@ -16,6 +16,41 @@ except ImportError:
     pass
 
 
+class JoiningObject(object):
+    def __init__(self, model, through, direct):
+        self.model = model
+        self.through = through
+        self.direct = direct
+
+    #This is required because of comparing join fields in
+    #django.db.models.sql.query.Query.join method
+    def __eq__(self, other):
+        return isinstance(other, JoiningObject) and self.model == other.model and self.through == other.through and self.direct == other.direct
+
+    def __ne__(self, other):
+        return not self == other
+
+    #Classes which define custom __eq__, must either also define __hash__
+    #or explicitly mark themselves as unhashable. We do the latter.
+    __hash__ = None
+
+    def get_extra_join_sql(self, connection, qn, lhs_alias, rhs_alias):
+        if self.direct:
+            alias_to_join = rhs_alias
+        else:
+            alias_to_join = lhs_alias
+        extra_col = self.through._meta.get_field_by_name('content_type')[0].column
+        content_type_ids = [ContentType.objects.get_for_model(subclass).pk for subclass in _get_subclasses(self.model)]
+        if len(content_type_ids) == 1:
+            content_type_id = content_type_ids[0]
+            extra_where = " AND %s.%s = %%s" % (qn(alias_to_join), qn(extra_col))
+            params = [content_type_id]
+        else:
+            extra_where = " AND %s.%s IN (%s)" % (qn(alias_to_join), qn(extra_col), ','.join(['%s']*len(content_type_ids)))
+            params = content_type_ids
+        return extra_where, params
+
+
 class TaggableRel(ManyToManyRel):
     def __init__(self, related_name=None):
         super(TaggableRel, self).__init__(None, related_name)
@@ -44,7 +79,6 @@ class TaggableManager(RelatedField):
         self.creation_counter = models.Field.creation_counter
         self.related_name = related_name
         models.Field.creation_counter += 1
-        self._extra_join_sql_direct = True
 
     def __get__(self, instance, model):
         if instance is not None and instance.pk is None:
@@ -72,6 +106,7 @@ class TaggableManager(RelatedField):
                 self.post_through_setup(cls)
 
     def post_through_setup(self, cls):
+        self.related = RelatedObject(cls, self.model, self)
         self.use_gfk = (
             self.through is None or issubclass(self.through, GenericTaggedItemBase)
         )
@@ -140,22 +175,6 @@ class TaggableManager(RelatedField):
         return [("%s__content_type__in" % prefix, cts)]
 
     #This and all the methods till the end of class are only used in django >= 1.6
-    def get_extra_join_sql(self, connection, qn, lhs_alias, rhs_alias):
-        if self._extra_join_sql_direct:
-            alias_to_join = rhs_alias
-        else:
-            alias_to_join = lhs_alias
-        extra_col = self.through._meta.get_field_by_name('content_type')[0].column
-        content_type_ids = [ContentType.objects.get_for_model(subclass).pk for subclass in _get_subclasses(self.model)]
-        if len(content_type_ids) == 1:
-            content_type_id = content_type_ids[0]
-            extra_where = " AND %s.%s = %%s" % (qn(alias_to_join), qn(extra_col))
-            params = [content_type_id]
-        else:
-            extra_where = " AND %s.%s IN (%s)" % (qn(alias_to_join), qn(extra_col), ','.join(['%s']*len(content_type_ids)))
-            params = content_type_ids
-        return extra_where, params
-
     def _get_mm_case_path_info(self, direct=False):
         pathinfos = []
         linkfield1 = self.through._meta.get_field_by_name('content_object')[0]
@@ -177,16 +196,16 @@ class TaggableManager(RelatedField):
         object_id_field = opts.get_field_by_name('object_id')[0]
         linkfield = self.through._meta.get_field_by_name(self.m2m_reverse_field_name())[0]
         if direct:
-            join1infos = [PathInfo(from_field, object_id_field, self.model._meta, opts, self, True, False)]
+            joining_object = JoiningObject(self.model, self.through, True)
+            join1infos = [PathInfo(from_field, object_id_field, self.model._meta, opts, joining_object, True, False)]
             join2infos, opts, target, final = linkfield.get_path_info()
-            self._extra_join_sql_direct = True
         else:
+            joining_object = JoiningObject(self.model, self.through, False)
             join1infos, _, _, _ = linkfield.get_reverse_path_info()
-            join2infos = [PathInfo(object_id_field, from_field, opts, self.model._meta, self, True, False)]
+            join2infos = [PathInfo(object_id_field, from_field, opts, self.model._meta, joining_object, True, False)]
             target = from_field
             final = self
             opts = self.model._meta
-            self._extra_join_sql_direct = False
 
         pathinfos.extend(join1infos)
         pathinfos.extend(join2infos)
