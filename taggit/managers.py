@@ -63,7 +63,7 @@ class TaggableRel(ManyToManyRel):
 
 class TaggableManager(RelatedField):
     def __init__(self, verbose_name=_("Tags"),
-        help_text=_("A comma-separated list of tags."), through=None, blank=False, related_name=None):
+        help_text=_("A comma-separated list of tags."), through=None, blank=False, related_name=None, restricted=True):
         self.through = through or TaggedItem
         self.rel = TaggableRel(related_name)
         self.verbose_name = verbose_name
@@ -78,6 +78,7 @@ class TaggableManager(RelatedField):
         self.null = True
         self.creation_counter = models.Field.creation_counter
         self.related_name = related_name
+        self.restricted = restricted
         models.Field.creation_counter += 1
 
     def __get__(self, instance, model):
@@ -85,7 +86,8 @@ class TaggableManager(RelatedField):
             raise ValueError("%s objects need to have a primary key value "
                 "before you can access their tags." % model.__name__)
         manager = _TaggableManager(
-            through=self.through, model=model, instance=instance
+            through=self.through, model=model, instance=instance,
+            restricted=self.restricted
         )
         return manager
 
@@ -225,11 +227,12 @@ class TaggableManager(RelatedField):
 
 
 class _TaggableManager(models.Manager):
-    def __init__(self, through, model, instance):
+    def __init__(self, through, model, instance, restricted):
         self.through = through
         self.model = model
         self.instance = instance
         self.force_lowercase = settings.TAGGIT_FORCE_LOWERCASE
+        self.restricted = restricted
 
     def get_query_set(self):
         return self.through.tags_for(self.model, self.instance)
@@ -260,11 +263,13 @@ class _TaggableManager(models.Manager):
 
             existing = existing.filter(q)
             obj_tags.update(existing)
-
-        to_create = str_tags - set([one.name for one in obj_tags])
-        for new_name in to_create:
-            x = self.through.tag_model().objects.create(name=new_name)
-            obj_tags.add(x)
+        
+        # Create new tags; only create if this field is not restricted.
+        if not self.restricted:
+            to_create = str_tags - set([one.name for one in obj_tags])
+            for new_name in to_create:
+                x = self.through.tag_model().objects.create(name=new_name)
+                obj_tags.add(x)
 
         for tag in obj_tags:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
