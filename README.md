@@ -59,6 +59,11 @@ English articles to, from, the, of, etc.) add to settings.py:
 
 ``TAGGIT_STOPWORDS = [u'a', u'an', u'and', u'be', u'from', u'of']``
 
+If you only want to allow existing tags to be used, you can specify it on the
+model with:
+
+    tags = TaggableManager(restricted=True)
+
 Requirements
 ------------
 
