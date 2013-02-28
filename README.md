@@ -16,12 +16,12 @@ Getting Started
 ---------------
 
 This is unofficial fork of django-taggit, you have to install it from github:
-``pip``::
+``pip``:
 
     $ pip install git+git://github.com/yedpodtrzitko/django-taggit.git
 
 Add ``"taggit"`` to your
-``INSTALLED_APPS`` then just add a TaggableManager to your model and go::
+``INSTALLED_APPS`` then just add a TaggableManager to your model and go:
 
     from django.db import models
 
@@ -32,7 +32,7 @@ Add ``"taggit"`` to your
 
         tags = TaggableManager()
 
-Then you can use the API like so::
+Then you can use the API like so:
 
     >>> apple = Food.objects.create(name="apple")
     >>> apple.tags.add("red", "green", "delicious")
