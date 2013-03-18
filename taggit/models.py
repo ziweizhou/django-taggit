@@ -55,12 +55,14 @@ class TagBase(models.Model):
 
 class Tag(TagBase):
     namespace =  models.CharField(_('namespace'), max_length=100, blank=True, null=True)
-
+    name2 = models.CharField(verbose_name=_('Name Also Know As'), unique=False, max_length=100,null=True)
     def __unicode__(self):
         name = self.name.partition(":")[2] if self.name.partition(":")[1] == ":" else self.name
         return name
 
     def save(self, *args, **kwargs):
+        if self.name2 is None:
+            self.name2 = self.name
         self.namespace = self.name.partition(":")[0] if self.name.partition(":")[1] == ":" else u''
         return super(Tag, self).save(*args, **kwargs)
 
