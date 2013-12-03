@@ -71,7 +71,7 @@ class TaggableManager(RelatedField):
         self.help_text = help_text
         self.blank = blank
         self.editable = True
-        self.unique = False
+        self._unique = False
         self.creates_table = False
         self.db_column = None
         self.choices = None
