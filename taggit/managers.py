@@ -74,7 +74,7 @@ class TaggableManager(RelatedField):
         self._unique = False
         self.creates_table = False
         self.db_column = None
-        self.choices = None
+        self._choices = None
         self.serialize = False
         self.null = True
         self.creation_counter = models.Field.creation_counter
