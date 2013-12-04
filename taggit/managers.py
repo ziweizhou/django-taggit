@@ -65,8 +65,8 @@ class TaggableRel(ManyToManyRel):
 class TaggableManager(RelatedField):
     def __init__(self, verbose_name=_("Tags"),
         help_text=_("A comma-separated list of tags."), through=None, blank=False, related_name=None, restricted=True):
-        super(TaggableManager,self).__init__(verbose_name=verbose_name,help_text=help_text,through=through or TaggedItem,blank=blank,rel=TaggableRel(related_name))
-        # self.through = through or TaggedItem
+        super(TaggableManager,self).__init__(verbose_name=verbose_name,help_text=help_text,blank=blank,rel=TaggableRel(related_name))
+        self.through = through or TaggedItem
         self.editable = True
         self.creates_table = False
         self.serialize = False
